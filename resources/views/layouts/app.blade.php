@@ -63,6 +63,12 @@
 
 <!-- Main Content -->
 <main class="container mt-4">
+    <!-- Admin Navbar if defined -->
+    @hasSection('admin')
+        <div class="bg-light border-bottom mb-3">
+            @yield('admin')
+        </div>
+    @endif
     @yield('content')
 </main>
 

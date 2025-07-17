@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -31,10 +32,9 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    /**
-     * Admin Routes
-     */
+
     Route::prefix('admin')->middleware(['role:Admin'])->name('admin.')->group(function () {
+
         Route::get('/dashboard', fn () => view('admin.dashboard'))->name('dashboard');
         Route::get('/hr-dashboard', fn () => view('hr.dashboard'))->name('hr');
         Route::get('/manager-dashboard', fn () => view('manager.dashboard'))->name('manager');
@@ -45,9 +45,6 @@ Route::middleware(['auth'])->group(function () {
             ->name('announcements.page');
     });
 
-    /**
-     * HR Routes
-     */
     Route::prefix('hr')->middleware(['role:HR'])->name('hr.')->group(function () {
         Route::get('/dashboard', fn () => view('hr.dashboard'))->name('dashboard');
     });
@@ -73,3 +70,4 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
 });
+
