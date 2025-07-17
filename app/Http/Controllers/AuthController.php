@@ -6,6 +6,7 @@ use App\DTOs\Auth\LoginDTO;
 use App\Services\Auth\AuthService;
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
@@ -15,7 +16,10 @@ class AuthController extends Controller
     }
 
     public function showLoginForm(){
-        return view('auth.login');
+
+
+        return $this->authService->AlreadyLoggedIn();
+
     }
 
     public function login(Request $request){
