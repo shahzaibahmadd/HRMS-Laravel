@@ -7,11 +7,13 @@ use App\Models\User;
 use App\Services\ErrorLoggingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+
 
 class UserService
 {
 
-    public function createUser(UserDTO $dto):User
+    public function createUser(UserDTO $dto): ?User
     {
         DB::beginTransaction();
         try{
@@ -29,5 +31,30 @@ class UserService
             return null;
         }
     }
+
+
+
+    public function updateUser(User $user, UserDTO $dto)
+    {
+        $data = $dto->toArray();
+
+
+        if (!empty($data['password'])) {
+            $data['password'] = Hash::make($data['password']);
+        } else {
+            unset($data['password']);
+
+        }
+
+        $user->update($data);
+
+
+        if ($dto->role && !$user->hasRole($dto->role)) {
+            $user->syncRoles([$dto->role]);
+        }
+
+        return $user;
+    }
+
 
 }

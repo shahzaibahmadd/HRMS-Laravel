@@ -2,13 +2,14 @@
 
 @section('content')
     <div class="container">
-        <h2 class="mb-3"> Manager Dashboard</h2>
-        <p>Welcome, Manager! You can oversee teams and approve relevant leaves.</p>
+        <h1>Manager Dashboard - Viewing {{ $user->name }}</h1>
 
-        <ul>
-            <li>View your team’s performance</li>
-            <li>Approve leave requests from your team</li>
-            <li>Assign tasks and monitor deadlines</li>
-        </ul>
+        <p>Email: {{ $user->email }}</p>
+        <p>Phone: {{ $user->phone }}</p>
+        <p>Status: {{ $user->is_active ? 'Active' : 'Inactive' }}</p>
+
+        @if($user->profile_image)
+            <img src="{{ asset('storage/user_images/' . $user->profile_image) }}" alt="Profile Image" width="150">
+        @endif
     </div>
 @endsection
