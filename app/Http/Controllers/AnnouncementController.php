@@ -17,9 +17,7 @@ class AnnouncementController extends Controller
         return view('layouts.admin.announcement', compact('announcements'));
     }
 
-    /**
-     * General: Show all active announcements (for employees/managers)
-     */
+
     public function index()
     {
         $announcements = Announcement::where('is_active', 1)

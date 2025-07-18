@@ -6,6 +6,7 @@ use App\DTOs\User\UserDTO;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRequest;
+use App\Models\Announcement;
 use App\Models\User;
 use App\Services\ErrorLoggingService;
 use App\Services\User\UserService;
@@ -65,12 +66,15 @@ class UserManagementController extends Controller
     public function dashboardRedirect(User $user)
     {
         try {
+            $announcements = Announcement::where('is_active', 1)
+                ->orderBy('created_at', 'desc')
+                ->get();
             if ($user->hasRole('HR')) {
-                return view('hr.dashboard', ['user' => $user]);
+                return view('hr.dashboard', ['user' => $user , 'announcements' => $announcements]);
             } elseif ($user->hasRole('Manager')) {
-                return view('manager.dashboard', ['user' => $user]);
+                return view('manager.dashboard', ['user' => $user , 'announcements' => $announcements]);
             } elseif ($user->hasRole('Employee')) {
-                return view('employee.dashboard', ['user' => $user]);
+                return view('employee.dashboard', ['user' => $user , 'announcements' => $announcements]);
             } else {
                 abort(403, 'User has no valid dashboard.');
             }

@@ -13,8 +13,10 @@ class ManagerController extends Controller
     public function dashboard()
     {
         // Get all announcements, latest first
+        $user=auth()->user();
+
         $announcements = Announcement::orderBy('created_at', 'desc')->get();
 
-        return view('manager.dashboard', compact('announcements'));
+        return view('manager.dashboard', compact('announcements','user'));
     }
 }
