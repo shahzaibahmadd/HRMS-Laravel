@@ -67,18 +67,25 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/create', [UserManagementController::class, 'create'])->name('create');
         Route::post('/create', [UserManagementController::class, 'store'])->name('users.store');
 
-        Route::get('/users/hr', [UserManagementController::class, 'listHR'])->name('users.hr');
-        Route::get('/users/manager', [UserManagementController::class, 'listManagers'])->name('users.manager');
-        Route::get('/users/employee', [UserManagementController::class, 'listEmployees'])->name('users.employee');
+
+
+        Route::get('/users/hr',[UserManagementController::class,'listHR'])->name('users.hr');
+        Route::get('/users/manager',[UserManagementController::class,'listManagers'])->name('users.manager');
+        Route::get('/users/employee',[UserManagementController::class,'listEmployees'])->name('users.employee');
 
         Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
 
-        Route::get('users/{user}/profile', [UserManagementController::class, 'profile'])->name('users.profile');
+        Route::get('users/{user}/profile',[UserManagementController::class,'profile'])->name('users.profile');
+        Route::get('/users/{user}/dashboard',[UserManagementController::class,'dashboardRedirect'])->name('users.dashboard');
 
-        // Redirect to role-specific dashboard for a given user
-        Route::get('/users/{user}/dashboard', [UserManagementController::class, 'dashboardRedirect'])
-            ->name('users.dashboard');
+
+
+
+    });
+
+
+
     });
 
     /*
@@ -87,10 +94,11 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('hr')->middleware(['role:HR'])->name('hr.')->group(function () {
-        // Your simplified version; if you need the $user in the view, adjust controller/closure.
-        Route::get('/dashboard', function () {
-            $user = auth()->user();
-            return view('hr.dashboard', compact('user'));
+
+        Route::get('/dashboard',function (){
+            $user=auth()->user();
+            return view('hr.dashboard',compact('user'));
+
         })->name('dashboard');
     });
 
@@ -100,8 +108,14 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('manager')->middleware(['role:Manager'])->name('manager.')->group(function () {
-        // Uses dedicated controller (your improvement)
-        Route::get('/dashboard', [ManagerController::class, 'dashboard'])->name('dashboard');
+
+        Route::get('/dashboard', function (){
+            $user=auth()->user();
+            return view('manager.dashboard',compact('user'));
+        })->name('dashboard');
+=======
+    
+
     });
 
     /*
@@ -110,6 +124,13 @@ Route::middleware(['auth'])->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::prefix('employee')->middleware(['role:Employee'])->name('employee.')->group(function () {
+
+    
+
+
+
+
+=======
         Route::get('/dashboard', function () {
             $user = auth()->user();
             return view('employee.dashboard', compact('user'));
@@ -124,4 +145,5 @@ Route::middleware(['auth'])->group(function () {
     */
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+
 });

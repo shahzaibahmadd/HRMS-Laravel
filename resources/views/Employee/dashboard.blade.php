@@ -2,13 +2,14 @@
 
 @section('content')
     <div class="container">
-        <h2 class="mb-3"> Employee Dashboard</h2>
-        <p>Welcome, Employee! Here’s your personal workspace.</p>
+        <h1>Employee Dashboard - Viewing {{ $user->name }}</h1>
 
-        <ul>
-            <li>Check-in / Check-out for attendance</li>
-            <li>Apply for leave</li>
-            <li>View salary and performance reviews</li>
-        </ul>
+        <p>Email: {{ $user->email }}</p>
+        <p>Phone: {{ $user->phone }}</p>
+        <p>Status: {{ $user->is_active ? 'Active' : 'Inactive' }}</p>
+
+        @if($user->profile_image)
+            <img src="{{ asset('storage/user_images/' . $user->profile_image) }}" alt="Profile Image" width="150">
+        @endif
     </div>
 @endsection

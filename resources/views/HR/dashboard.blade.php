@@ -2,13 +2,14 @@
 
 @section('content')
     <div class="container">
-        <h2 class="mb-3"> HR Dashboard</h2>
-        <p>Welcome, HR! You can manage employees, leave requests, and attendance records.</p>
+        <h1>HR Dashboard - Viewing {{ $user->name }}</h1>
 
-        <ul>
-            <li>Add/update employee profiles</li>
-            <li>Approve or reject leave requests</li>
-            <li>Generate attendance and leave reports</li>
-        </ul>
+        <p>Email: {{ $user->email }}</p>
+        <p>Phone: {{ $user->phone }}</p>
+        <p>Status: {{ $user->is_active ? 'Active' : 'Inactive' }}</p>
+
+        @if($user->profile_image)
+            <img src="{{ asset('storage/user_images/' . $user->profile_image) }}" alt="Profile Image" width="150">
+        @endif
     </div>
 @endsection
