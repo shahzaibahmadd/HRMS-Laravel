@@ -21,7 +21,7 @@ class WelcomeEmail extends Mailable implements ShouldQueue
 
     public function build()
     {
-        $logoUrl = asset('logo.jpg'); // Ensure logo.jpg is in public/
+        $logoUrl = asset('logo.jpg');
 
         \Log::info("Building Welcome Email for user: {$this->user->email}");
 
