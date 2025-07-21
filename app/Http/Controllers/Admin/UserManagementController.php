@@ -42,17 +42,22 @@ class UserManagementController extends Controller
     }
     public function listHR(){
         $hrs=User::role('HR')->get();
-        return view('admin.users.hr',compact('hrs'));
+        $deletedHR = User::role('HR')->onlyTrashed()->get();
+
+        return view('admin.users.hr',compact('hrs','deletedHR'));
 
     }
     public function listManagers(){
 
         $managers=User::role('Manager')->get();
-        return view('admin.users.manager',compact('managers'));
+        $deletedManagers = User::role('Manager')->onlyTrashed()->get();
+        return view('admin.users.manager',compact('managers','deletedManagers'));
     }
     public function listEmployees(){
         $employees=User::role('Employee')->get();
-        return view('admin.users.employee',compact('employees'));
+        $deletedEmployees = User::role('Employee')->onlyTrashed()->get();
+
+        return view('admin.users.employee',compact('employees','deletedEmployees'));
     }
     public function edit(User $user)
     {
@@ -113,6 +118,28 @@ class UserManagementController extends Controller
             ErrorLoggingService::log($e);
             return redirect()->back()->with('Error', 'Something went wrong during update');
         }
+    }
+
+    public function destroy(User $user)
+    {
+        if ($user->hasRole('Admin')) {
+            return redirect()->back()->with('Error', 'Admin user cannot be deleted.');
+        }
+
+        $user->delete();
+        return redirect()->back()->with('Success', 'User deleted successfully.');
+    }
+
+    public function restore($id)
+    {
+        $user = User::withTrashed()->findOrFail($id);
+
+        if (!$user->trashed()) {
+            return redirect()->back()->with('Info', 'User is already active.');
+        }
+
+        $user->restore();
+        return redirect()->back()->with('Success', 'User restored successfully.');
     }
 
 

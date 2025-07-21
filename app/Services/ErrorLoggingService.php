@@ -12,7 +12,7 @@ class ErrorLoggingService
            'message'=>$e->getMessage(),
            'file'=>$e->getFile(),
            'line'=>$e->getLine(),
-           'trace'=>$e->getTrace(),
+           'trace' => $e->getTraceAsString(),
            'user_id'=>auth()->check()?auth()->id():null,
        ]);
    }
