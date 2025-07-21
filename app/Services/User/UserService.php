@@ -8,6 +8,8 @@ use App\Services\ErrorLoggingService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Mail\WelcomeEmail;
+use Illuminate\Support\Facades\Mail;
 
 
 class UserService
@@ -22,6 +24,7 @@ class UserService
             $user= User::create($data);
             $user->assignRole($dto->role);
             DB::commit();
+            Mail::to($user->email)->queue(new WelcomeEmail($user));
             return $user;
 
         }catch (\Throwable $e){
