@@ -1,5 +1,5 @@
 <!-- resources/views/layouts/partials/admin-navbar.blade.php -->
-
+@role('Admin')
 <nav class="navbar navbar-expand-lg navbar-dark bg-secondary">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ route('admin.dashboard') }}">HRMS Admin</a>
@@ -32,3 +32,4 @@
         </div>
     </div>
 </nav>
+@endrole

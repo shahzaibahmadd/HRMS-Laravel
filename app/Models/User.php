@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -9,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles,SoftDeletes;
 
     protected $fillable = [
         'name',
@@ -46,10 +47,11 @@ class User extends Authenticatable
         return $this->hasMany(LeaveRequest::class);
     }
 
-    public function payrolls()
+    public function payroll()
     {
-        return $this->hasMany(Payroll::class);
+        return $this->hasOne(Payroll::class);
     }
+
 
     public function performanceReviews()
     {

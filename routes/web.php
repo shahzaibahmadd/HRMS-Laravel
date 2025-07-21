@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Payroll\PayrollController;
+use App\Http\Controllers\Payslip\PayslipController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ManagerController;
@@ -69,11 +71,17 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/users/{user}/edit', [UserManagementController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserManagementController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+        Route::post('/users/{user}/restore', [UserManagementController::class, 'restore'])->name('users.restore');
+
 
         Route::get('users/{user}/profile',[UserManagementController::class,'profile'])->name('users.profile');
         Route::get('/users/{user}/dashboard',[UserManagementController::class,'dashboardRedirect'])->name('users.dashboard');
 
 
+//        Route::get('/users/{user}/dashboard', [UserManagementController::class, 'dashboardRedirect'])
+//            ->middleware('role') // Alias this in Kernel
+//            ->name('users.dashboard');
 
 
     });
@@ -115,5 +123,52 @@ Route::middleware(['auth'])->group(function () {
 
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+
+
+
+//    payroll routes
+
+
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+
+        Route::get('/{user}', [PayrollController::class, 'show'])
+            ->middleware('role') // <- This is your custom RoleMiddleware
+            ->name('show');
+        // Admin: can edit all payrolls
+        Route::middleware(['role:Admin'])->group(function () {
+            Route::get('/admin/{user}/edit', [PayrollController::class, 'edit'])->name('admin.edit');
+            Route::put('/admin/{user}', [PayrollController::class, 'update'])->name('admin.update');
+        });
+
+
+
+        // ✅ HR: can edit Manager and Employee payrolls
+        Route::middleware(['role:HR'])->group(function () {
+            Route::get('/hr/{user}/edit', [PayrollController::class, 'edit'])->name('hr.edit');
+            Route::put('/hr/{user}', [PayrollController::class, 'update'])->name('hr.update');
+        });
+
+        // ✅ Manager: can edit Employee payrolls
+        Route::middleware(['role:Manager'])->group(function () {
+            Route::get('/manager/{user}/edit', [PayrollController::class, 'edit'])->name('manager.edit');
+            Route::put('/manager/{user}', [PayrollController::class, 'update'])->name('manager.update');
+        });
+
+    });
+
+    Route::prefix('payslips')->name('payslips.')->middleware(['auth'])->group(function () {
+
+        // Generate Payslip (POST)
+        Route::post('/generate/{payroll}', [PayslipController::class, 'generate'])
+            ->name('generate');
+
+        // Download Payslip (GET)
+        Route::get('/download/{payslip}', [PayslipController::class, 'download'])
+            ->name('download');
+    });
+
+
+
+
 
 });

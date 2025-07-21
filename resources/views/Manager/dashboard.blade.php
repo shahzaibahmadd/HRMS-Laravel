@@ -10,7 +10,7 @@
             <div class="card shadow">
                 <div class="card-body text-center">
                     @if ($user->profile_image)
-                        <img src="{{ asset('storage/user_images/' . $user->profile_image) }}" alt="Profile Image" class="rounded-circle mb-3" width="150">
+                        <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image" class="rounded-circle mb-3" width="150">
                     @else
                         <img src="{{ asset('images/default-profile.png') }}" alt="Default Profile" class="rounded-circle mb-3" width="150">
                     @endif
