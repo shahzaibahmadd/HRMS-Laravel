@@ -32,11 +32,15 @@
                         <td>{{ \Carbon\Carbon::parse($review->review_date)->format('d M Y') }}</td>
                         <td>
                             @role('Admin|HR|Manager')
-                            <a href="{{ route('performance.edit', $review->id) }}" class="btn btn-sm btn-warning">Edit</a>
-                            <form action="{{ route('performance.destroy', $review->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this review?');">
-                                @csrf @method('DELETE')
-                                <button class="btn btn-sm btn-danger">Delete</button>
+
+
+                            <!-- Send Review Button -->
+                            <form action="{{ route('performance.sendReminders') }}" method="POST" class="d-inline">
+                                @csrf
+                                <input type="hidden" name="review_id" value="{{ $review->id }}">
+                                <button class="btn btn-sm btn-info">Send Review</button>
                             </form>
+
                             @endrole
                         </td>
                     </tr>
