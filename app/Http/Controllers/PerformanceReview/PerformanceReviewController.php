@@ -125,11 +125,7 @@ class PerformanceReviewController extends Controller
         }
     }
 
-    /**
-     * Send a performance review email to a single user.
-     * POST route: performance.sendReminders
-     * Expects: review_id in the request.
-     */
+
     public function sendReminders(Request $request)
     {
         $request->validate([

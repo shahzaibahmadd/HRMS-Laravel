@@ -22,9 +22,7 @@ class PerformanceReviewMail extends Mailable /* implements ShouldQueue */
         $this->review = $review;
     }
 
-    /**
-     * Build the message.
-     */
+
     public function build()
     {
         return $this->subject('Your Performance Review')
