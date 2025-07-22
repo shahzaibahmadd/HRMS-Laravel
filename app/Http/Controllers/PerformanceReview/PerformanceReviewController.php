@@ -4,16 +4,17 @@ namespace App\Http\Controllers\PerformanceReview;
 
 use App\DTOs\PerformanceReview\PerformanceReviewDTO;
 use App\Http\Controllers\Controller;
+use App\Mail\PerformanceReviewMail;
 use App\Models\PerformanceReview;
 use App\Models\User;
 use App\Services\PerformanceReview\PerformanceReviewService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;   // <-- MISSING BEFORE
 
 class PerformanceReviewController extends Controller
 {
-
-    protected $reviewService;
+    protected PerformanceReviewService $reviewService;
 
     public function __construct(PerformanceReviewService $reviewService)
     {
@@ -27,16 +28,23 @@ class PerformanceReviewController extends Controller
         if ($user->hasRole('Admin')) {
             $reviews = PerformanceReview::with('user')->latest()->get();
         } elseif ($user->hasRole('HR')) {
+            // HR can see Managers + Employees
             $reviews = PerformanceReview::with('user')
-                ->whereHas('user', fn($q) => $q->role(['Manager', 'Employee']))->get();
+                ->whereHas('user', fn ($q) => $q->role(['Manager', 'Employee']))
+                ->get();
         } elseif ($user->hasRole('Manager')) {
+            // Manager sees Employees
             $reviews = PerformanceReview::with('user')
-                ->whereHas('user', fn($q) => $q->role('Employee'))->get();
+                ->whereHas('user', fn ($q) => $q->role('Employee'))
+                ->get();
         } else {
-            $reviews = PerformanceReview::with('user')->where('user_id', $user->id)->get();
+            // Employee sees only their own
+            $reviews = PerformanceReview::with('user')
+                ->where('user_id', $user->id)
+                ->get();
         }
 
-        return view('performance_reviews.index', compact('reviews','user'));
+        return view('performance_reviews.index', compact('reviews', 'user'));
     }
 
     public function create()
@@ -59,8 +67,8 @@ class PerformanceReviewController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'feedback' => 'nullable|string',
+            'user_id'     => 'required|exists:users,id',
+            'feedback'    => 'nullable|string',
             'review_date' => 'required|date',
         ]);
 
@@ -80,14 +88,13 @@ class PerformanceReviewController extends Controller
 
     public function edit(PerformanceReview $performanceReview)
     {
-//        $this->authorize('update', $performanceReview);
         return view('performance_reviews.edit', compact('performanceReview'));
     }
 
     public function update(Request $request, PerformanceReview $performanceReview)
     {
         $request->validate([
-            'feedback' => 'nullable|string',
+            'feedback'    => 'nullable|string',
             'review_date' => 'required|date',
         ]);
 
@@ -103,28 +110,37 @@ class PerformanceReviewController extends Controller
         return redirect()->route('performance.index')->with('success', 'Review updated.');
     }
 
-//    public function destroy(PerformanceReview $performanceReview)
-//    {
-//        $this->reviewService->delete($performanceReview);
-//        return redirect()->route('performance.index')->with('success', 'Review deleted.');
-//    }
-
-
     public function destroy(PerformanceReview $performanceReview)
     {
         try {
             $performanceReview->delete();
 
-            // Double-check if it's gone
             if (PerformanceReview::find($performanceReview->id)) {
                 return back()->with('error', 'Failed to delete the review.');
             }
 
-            return redirect()->route('performance.index')->with('success', 'Review deleted!!!!.');
-        } catch (\Exception $e) {
+            return redirect()->route('performance.index')->with('success', 'Review deleted.');
+        } catch (\Throwable $e) {
             return back()->with('error', 'Error: ' . $e->getMessage());
         }
     }
 
+    /**
+     * Send a performance review email to a single user.
+     * POST route: performance.sendReminders
+     * Expects: review_id in the request.
+     */
+    public function sendReminders(Request $request)
+    {
+        $request->validate([
+            'review_id' => 'required|exists:performance_reviews,id',
+        ]);
 
+        $review = PerformanceReview::with('user')->findOrFail($request->review_id);
+        $user   = $review->user;
+
+        Mail::to($user->email)->send(new PerformanceReviewMail($review));
+
+        return redirect()->back()->with('success', 'The performance review has been emailed to ' . $user->email . '.');
+    }
 }

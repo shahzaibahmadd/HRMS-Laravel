@@ -65,7 +65,7 @@ class UserManagementController extends Controller
 
             $this->userservice->createUser($userDTO);
 
-            return redirect()->route('admin.dashboard')->with('Success', 'User added successfully');
+            return redirect()->route('admin.dashboard')->with('success', 'User added successfully');
         } catch (\Throwable $e) {
             ErrorLoggingService::log($e);
             return redirect()->back()->with('Error', 'Something went wrong');
