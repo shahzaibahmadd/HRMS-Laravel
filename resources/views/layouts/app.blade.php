@@ -74,21 +74,27 @@
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.hr') }}">HRs</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.manager') }}">Managers</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.employee') }}">Employees</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a></li>
+
                 @elserole('HR')
                 <li class="nav-item"><a class="nav-link" href="{{ route('hr.dashboard') }}">HR Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.manager') }}">Managers</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.employee') }}">Employees</a></li>
                 <li class="nav-item"> <a class="nav-link" href="{{ route('payroll.show', $user->id) }}" >View My Payroll</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a></li>
+
 
                 @elserole('Manager')
                 <li class="nav-item"><a class="nav-link" href="{{ route('manager.dashboard') }}">Manager Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="{{ route('admin.users.employee') }}">Employees</a></li>
                 <li class="nav-item"> <a class="nav-link" href="{{ route('payroll.show', $user->id) }}" >View My Payroll</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a></li>
 
 
                 @elserole('Employee')
                 <li class="nav-item"><a class="nav-link" href="{{ route('employee.dashboard') }}">Employee Dashboard</a></li>
                 <li class="nav-item"> <a class="nav-link" href="{{ route('payroll.show', $user->id) }}" >View My Payroll</a></li>
+                <li class="nav-item"><a class="nav-link" href="{{ route('tasks.index') }}">Tasks</a></li>
 
 
                 @endrole

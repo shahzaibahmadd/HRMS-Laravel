@@ -27,12 +27,12 @@ class StoreUserRequest extends FormRequest
             'password'=>'required|string|min:6',
             'role'=>'required|string|exists:roles,name',
             'is_active'=>'nullable|boolean',
-            'profile_image'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'profile_image'=>'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
             'phone'=>'nullable|string|max:255',
             'skills'        => 'nullable|string|max:500',
-            'documents'     => 'nullable|file|mimes:pdf,doc,docx,jpg,png,jpeg|max:5120',
-            'resume'        => 'nullable|file|mimes:pdf,doc,docx|max:5120',
-            'contract'      => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'documents'     => 'nullable|file|mimes:pdf,doc,docx,jpg,png,jpeg|max:51200',
+            'resume'        => 'nullable|file|mimes:pdf,doc,docx|max:51200',
+            'contract'      => 'nullable|file|mimes:pdf,doc,docx|max:51200',
         ];
     }
 }
