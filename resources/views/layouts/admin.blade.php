@@ -16,11 +16,14 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ route('admin.create') }}">Add New User</a>
+                    <a class="nav-link" href="/employee">Add New User</a>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link" href="#">Performance Reminders</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('employees.index') }}">Staff Portal</a>
                 </li>
             </ul>
 

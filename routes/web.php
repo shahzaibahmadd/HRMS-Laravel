@@ -9,6 +9,7 @@ use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ManagerController;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ExportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -172,3 +173,25 @@ Route::middleware(['auth'])->group(function () {
 
 
 });
+
+
+
+
+
+Route::get('/employees', function () {
+    return view('employees.index');
+})->name('employees.index');
+
+Route::get('/attendances', function () {
+    return view('attendances.index');
+})->name('attendances.index');
+
+Route::get('/leaves', function () {
+    return view('leaves.index');
+})->name('leaves.index');
+
+Route::get('/export/employees', [ExportController::class, 'exportEmployees'])->name('export.employees');
+Route::get('/export/attendances', [ExportController::class, 'exportAttendances'])->name('export.attendances');
+Route::get('/export/leaves', [ExportController::class, 'exportLeaves'])->name('export.leaves');
+
+
