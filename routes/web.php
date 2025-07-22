@@ -7,6 +7,7 @@ use App\Http\Controllers\Payslip\PayslipController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\ManagerController;
+use App\Http\Controllers\Task\TaskController;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Route;
 
@@ -79,10 +80,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/{user}/dashboard',[UserManagementController::class,'dashboardRedirect'])->name('users.dashboard');
 
 
-//        Route::get('/users/{user}/dashboard', [UserManagementController::class, 'dashboardRedirect'])
-//            ->middleware('role') // Alias this in Kernel
-//            ->name('users.dashboard');
-
 
     });
 
@@ -103,7 +100,7 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::prefix('manager')->middleware(['role:Manager'])->name('manager.')->group(function () {
-        // Uses dedicated controller (your improvement)
+
         Route::get('/dashboard', [ManagerController::class, 'dashboard'])->name('dashboard');
     });
 
@@ -132,9 +129,9 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('payroll')->name('payroll.')->group(function () {
 
         Route::get('/{user}', [PayrollController::class, 'show'])
-            ->middleware('role') // <- This is your custom RoleMiddleware
+            ->middleware('role')
             ->name('show');
-        // Admin: can edit all payrolls
+
         Route::middleware(['role:Admin'])->group(function () {
             Route::get('/admin/{user}/edit', [PayrollController::class, 'edit'])->name('admin.edit');
             Route::put('/admin/{user}', [PayrollController::class, 'update'])->name('admin.update');
@@ -142,13 +139,13 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-        // ✅ HR: can edit Manager and Employee payrolls
+
         Route::middleware(['role:HR'])->group(function () {
             Route::get('/hr/{user}/edit', [PayrollController::class, 'edit'])->name('hr.edit');
             Route::put('/hr/{user}', [PayrollController::class, 'update'])->name('hr.update');
         });
 
-        // ✅ Manager: can edit Employee payrolls
+
         Route::middleware(['role:Manager'])->group(function () {
             Route::get('/manager/{user}/edit', [PayrollController::class, 'edit'])->name('manager.edit');
             Route::put('/manager/{user}', [PayrollController::class, 'update'])->name('manager.update');
@@ -158,17 +155,51 @@ Route::middleware(['auth'])->group(function () {
 
     Route::prefix('payslips')->name('payslips.')->middleware(['auth'])->group(function () {
 
-        // Generate Payslip (POST)
+
         Route::post('/generate/{payroll}', [PayslipController::class, 'generate'])
             ->name('generate');
 
-        // Download Payslip (GET)
+
         Route::get('/download/{payslip}', [PayslipController::class, 'download'])
             ->name('download');
     });
 
 
 
+    Route::prefix('tasks')->name('tasks.')->group(function () {
+
+        // All authenticated users can view their assigned tasks
+        Route::get('/', [TaskController::class, 'index'])->name('index');
+
+        // Only assigned users can mark their task as completed
+        Route::post('/{task}/complete', [TaskController::class, 'markAsCompleted'])
+            ->whereNumber('task')
+            ->name('markAsCompleted');
+
+        // Task creation - Admin, HR, Manager
+        Route::middleware('role:Admin|HR|Manager')->group(function () {
+            Route::get('/create', [TaskController::class, 'create'])->name('create');
+            Route::post('/', [TaskController::class, 'store'])->name('store');
+        });
+
+        // View a single task (after /create to avoid 404)
+        Route::get('/{task}', [TaskController::class, 'show'])
+            ->whereNumber('task')
+            ->name('show');
+
+        // Edit, update, delete - Admin, HR, Manager (if assigned_by = auth user)
+        Route::middleware('role:Admin|HR|Manager')->group(function () {
+            Route::get('/{task}/edit', [TaskController::class, 'edit'])
+                ->whereNumber('task')
+                ->name('edit');
+            Route::put('/{task}', [TaskController::class, 'update'])
+                ->whereNumber('task')
+                ->name('update');
+            Route::delete('/{task}', [TaskController::class, 'destroy'])
+                ->whereNumber('task')
+                ->name('destroy');
+        });
+    });
 
 
 });
