@@ -18,6 +18,10 @@ class User extends Authenticatable
         'phone',
         'password',
         'profile_image',
+        'skills',
+        'documents',
+        'resume',
+        'contract',
         'is_active',
     ];
 

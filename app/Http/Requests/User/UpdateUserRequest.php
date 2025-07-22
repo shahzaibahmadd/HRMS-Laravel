@@ -29,6 +29,10 @@ class UpdateUserRequest extends FormRequest
             'role' => 'required|in:Admin,HR,Manager,Employee',
             'profile_image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'password' => 'nullable|string|min:6|confirmed',
+            'skills'        => 'nullable|string|max:500',
+            'documents'     => 'nullable|file|mimes:pdf,doc,docx,jpg,png,jpeg|max:5120',
+            'resume'        => 'nullable|file|mimes:pdf,doc,docx|max:5120',
+            'contract'      => 'nullable|file|mimes:pdf,doc,docx|max:5120',
         ];
     }
 }

@@ -6,18 +6,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        .active-status {
-            color: green;
-            font-weight: bold;
+        body {
+            background-color: #1f407a;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
         }
-        .inactive-status {
-            color: red;
-            font-weight: bold;
+
+        .navbar {
+            background-color: #111;
         }
+
+        .navbar .nav-link {
+            color: white !important;
+            margin-right: 15px;
+        }
+
+        .navbar .btn-logout {
+            border: 1px solid white;
+            color: white;
+        }
+
+        .top-banner {
+            background-color: #666;
+            padding: 15px;
+            margin-bottom: 2rem;
+            border-radius: 3px;
+        }
+
+        .top-banner h5 {
+            display: inline-block;
+            color: #fff;
+            margin-right: 20px;
+        }
+
+        .top-banner .nav-link {
+            color: #ddd;
+            display: inline-block;
+            margin-right: 15px;
+        }
+
+        .card {
+            background-color: #2c4c8b;
+            color: white;
+        }
+
+        .form-control, .form-select {
+            background-color: #f8f9fa;
+        }
+
         .toast-container {
             position: fixed;
             top: 1rem;
@@ -26,24 +66,39 @@
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <a class="navbar-brand text-white fw-bold" href="#">HR Management System</a>
+        <div class="d-flex">
+            <a class="nav-link" href="#">Admin Dashboard</a>
+            <a class="nav-link" href="#">Announcements</a>
+            <a class="nav-link" href="#">HRs</a>
+            <a class="nav-link" href="#">Managers</a>
+            <a class="nav-link" href="#">Employees</a>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline-block ms-2">
+                @csrf
+                <button class="btn btn-logout btn-sm" type="submit">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Container -->
 <div class="container py-5">
-    <!-- Back Button -->
-    <div class="mb-4">
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary">
-            ⬅️ Back to Dashboard
-        </a>
+    <!-- Top Banner -->
+    <div class="top-banner">
+        <h5 class="fw-bold">📢 Announcements Panel</h5>
+        <a class="nav-link d-inline" href="#">All Announcements</a>
+        <a class="nav-link d-inline" href="#">Add New</a>
+        <span class="float-end text-light">Welcome, Admin</span>
     </div>
 
-    <!-- Page Title -->
-    <h1 class="mb-4 text-center">📢 Announcements</h1>
-
-    <!-- Announcement Form -->
-    <div class="card mb-5 shadow">
-        <div class="card-header bg-primary text-white">
-            Create New Announcement
-        </div>
+    <!-- Form -->
+    <div class="card mb-4 shadow">
+        <div class="card-header bg-primary text-white">Create New Announcement</div>
         <div class="card-body">
             <form id="announcementForm">
                 <div class="mb-3">
@@ -52,19 +107,13 @@
                 <div class="mb-3">
                     <textarea class="form-control" name="message" rows="3" placeholder="Enter Message" required></textarea>
                 </div>
-                <div class="mb-3">
-                    <select class="form-select" name="is_active" required>
-                        <option value="1">Active</option>
-                        <option value="0">Inactive</option>
-                    </select>
-                </div>
                 <button type="submit" class="btn btn-success">➕ Create Announcement</button>
             </form>
         </div>
     </div>
 
     <!-- Announcement List -->
-    <h2 class="mb-3">📃 All Announcements</h2>
+    <h3 class="mb-3">📃 Recent Announcements</h3>
     <div id="announcementList" class="row gy-3">
         @foreach($announcements as $a)
             <div class="col-md-6">
@@ -72,9 +121,6 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $a->title }}</h5>
                         <p class="card-text">{{ $a->message }}</p>
-                        <span class="{{ $a->is_active ? 'active-status' : 'inactive-status' }}">
-                            ({{ $a->is_active ? 'Active' : 'Inactive' }})
-                        </span>
                     </div>
                 </div>
             </div>
@@ -82,29 +128,24 @@
     </div>
 </div>
 
-<!-- Toast Notifications -->
+<!-- Toast Container -->
 <div class="toast-container"></div>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
-<!-- Pusher + Echo (no build step) -->
 <script src="https://js.pusher.com/8.2/pusher.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1/dist/echo.iife.js"></script>
 
 <script>
-    // --- Axios CSRF Setup ---
     axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
     axios.defaults.headers.common['X-CSRF-TOKEN'] =
         document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-    // --- Pusher Debug (Disable in Production) ---
-    Pusher.logToConsole = false;
-
-    // --- Echo Initialization ---
     const pusherKey = "{{ config('broadcasting.connections.pusher.key') }}";
     const pusherCluster = "{{ config('broadcasting.connections.pusher.options.cluster') }}";
+
+    Pusher.logToConsole = false;
 
     window.Echo = new Echo({
         broadcaster: 'pusher',
@@ -113,12 +154,10 @@
         forceTLS: true
     });
 
-    // Connection Error Handling
     window.Echo.connector.pusher.connection.bind('error', (err) => {
         console.error('❌ Pusher connection error:', err);
     });
 
-    // --- Toast Helper Function ---
     function showToast(title, message) {
         const container = document.querySelector('.toast-container');
         const toast = document.createElement('div');
@@ -136,21 +175,17 @@
         setTimeout(() => toast.remove(), 5000);
     }
 
-    // --- Form Submission ---
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
         e.preventDefault();
-
         const payload = {
             title: this.title.value,
-            message: this.message.value,
-            is_active: this.is_active.value
+            message: this.message.value
         };
-
         axios.post("{{ route('announcements.store') }}", payload)
             .then(res => {
                 if (res.data.success) {
                     showToast('Announcement Created', 'Your announcement has been broadcasted.');
-                    e.target.reset();
+                    this.reset();
                 } else {
                     alert('❌ Failed to create announcement!');
                 }
@@ -161,14 +196,9 @@
             });
     });
 
-    // --- Real-time Listener ---
     Echo.channel('announcements')
         .listen('.announcement.created', (e) => {
             const a = e.announcement ?? e;
-
-            const statusClass = a.is_active ? 'active-status' : 'inactive-status';
-            const statusText  = a.is_active ? 'Active' : 'Inactive';
-
             const newCard = document.createElement('div');
             newCard.classList.add('col-md-6');
             newCard.innerHTML = `
@@ -176,19 +206,14 @@
                     <div class="card-body">
                         <h5 class="card-title">${a.title}</h5>
                         <p class="card-text">${a.message}</p>
-                        <span class="${statusClass}">(${statusText})</span>
                     </div>
                 </div>
             `;
-
             const container = document.getElementById('announcementList');
             container.insertBefore(newCard, container.firstChild);
-
-            // Show toast notification
             showToast(a.title, a.message);
         });
 </script>
 
 </body>
 </html>
-
