@@ -4,8 +4,8 @@
     <div class="container">
         <h2>Edit Performance Review</h2>
 
-        <form method="POST" action="{{ route('performance.update', $performanceReview->id) }}">
-            @csrf
+        <form method="POST" action="{{ route('performance.update', $performanceReview) }}">
+        @csrf
             @method('PUT')
 
             <div class="mb-3">

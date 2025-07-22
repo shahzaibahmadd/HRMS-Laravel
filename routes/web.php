@@ -5,7 +5,6 @@
     use App\Http\Controllers\Payroll\PayrollController;
     use App\Http\Controllers\Payslip\PayslipController;
     use App\Http\Controllers\PerformanceReview\PerformanceReviewController;
-    use App\Http\Controllers\ProfileController;
     use App\Http\Controllers\AnnouncementController;
     use App\Http\Controllers\ManagerController;
     use App\Http\Controllers\Task\TaskController;
@@ -200,7 +199,7 @@
                     ->whereNumber('task')
                     ->name('destroy');
             });
-        });
+         });
 
 
 
