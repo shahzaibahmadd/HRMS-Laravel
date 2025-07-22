@@ -38,14 +38,13 @@ class AnnouncementController extends Controller
         $request->validate([
             'title'     => 'required|string|max:255',
             'message'   => 'required|string',
-            'is_active' => 'required|boolean'
         ]);
 
         $announcement = Announcement::create([
             'user_id'   => auth()->id(),
             'title'     => $request->title,
             'message'   => $request->message,
-            'is_active' => $request->is_active
+
         ]);
 
         // Fire Event for Broadcasting

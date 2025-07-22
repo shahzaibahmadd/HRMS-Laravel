@@ -45,6 +45,30 @@
                         <input type="file" name="profile_image" class="form-control">
                     </div>
 
+                    <!-- Skills -->
+                    <div class="mb-3">
+                        <label class="form-label">Skills</label>
+                        <input type="text" name="skills" class="form-control" placeholder="e.g., PHP, Laravel, Vue.js" value="{{ old('skills') }}">
+                    </div>
+
+                    <!-- Documents -->
+                    <div class="mb-3">
+                        <label class="form-label">Other Documents</label>
+                        <input type="file" name="documents" class="form-control">
+                    </div>
+
+                    <!-- Resume -->
+                    <div class="mb-3">
+                        <label class="form-label">Resume</label>
+                        <input type="file" name="resume" class="form-control">
+                    </div>
+
+                    <!-- Contract -->
+                    <div class="mb-3">
+                        <label class="form-label">Contract</label>
+                        <input type="file" name="contract" class="form-control">
+                    </div>
+
                     <!-- Is Active -->
                     <div class="mb-3">
                         <label class="form-label">Status</label>

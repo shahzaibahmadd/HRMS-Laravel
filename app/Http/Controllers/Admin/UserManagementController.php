@@ -12,53 +12,87 @@ use App\Services\ErrorLoggingService;
 use App\Services\User\UserService;
 use Illuminate\Support\Facades\Storage;
 
-
 class UserManagementController extends Controller
 {
     protected $userservice;
-    public function __construct(UserService $userservice){
-        $this->userservice=$userservice;
+
+    public function __construct(UserService $userservice)
+    {
+        $this->userservice = $userservice;
     }
+
     public function create()
     {
         return view('admin.create');
     }
-    public function store(StoreUserRequest $request){
-        try {
 
-            $profileImagePath=null;
+    public function store(StoreUserRequest $request)
+    {
+        try {
+            // Profile Image
+            $profileImagePath = null;
             if ($request->hasFile('profile_image')) {
-                $profileImagePath=$request->file('profile_image')->store('user_images', 'public');
+                $profileImagePath = $request->file('profile_image')->store('user_images', 'public');
             }
 
-            $userDTO=new UserDTO($request,$profileImagePath);
-            $user=$this->userservice->createUser($userDTO);
-            return redirect()->route('admin.dashboard')->with('Success', 'User added successfully');
-        }catch (\Throwable $e){
+            // Documents
+            $documentsPath = null;
+            if ($request->hasFile('documents')) {
+                $documentsPath = $request->file('documents')->store('user_documents', 'public');
+            }
 
+            // Resume
+            $resumePath = null;
+            if ($request->hasFile('resume')) {
+                $resumePath = $request->file('resume')->store('user_resumes', 'public');
+            }
+
+            // Contract
+            $contractPath = null;
+            if ($request->hasFile('contract')) {
+                $contractPath = $request->file('contract')->store('user_contracts', 'public');
+            }
+
+            // Prepare DTO with all data
+            $userDTO = new UserDTO(
+                $request,
+                $profileImagePath,
+                $request->skills,
+                $documentsPath,
+                $resumePath,
+                $contractPath
+            );
+
+            $this->userservice->createUser($userDTO);
+
+            return redirect()->route('admin.dashboard')->with('Success', 'User added successfully');
+        } catch (\Throwable $e) {
             ErrorLoggingService::log($e);
             return redirect()->back()->with('Error', 'Something went wrong');
         }
     }
-    public function listHR(){
-        $hrs=User::role('HR')->get();
+
+    public function listHR()
+    {
+        $hrs = User::role('HR')->get();
         $deletedHR = User::role('HR')->onlyTrashed()->get();
-
-        return view('admin.users.hr',compact('hrs','deletedHR'));
-
+        return view('admin.users.hr', compact('hrs', 'deletedHR'));
     }
-    public function listManagers(){
 
-        $managers=User::role('Manager')->get();
+    public function listManagers()
+    {
+        $managers = User::role('Manager')->get();
         $deletedManagers = User::role('Manager')->onlyTrashed()->get();
-        return view('admin.users.manager',compact('managers','deletedManagers'));
+        return view('admin.users.manager', compact('managers', 'deletedManagers'));
     }
-    public function listEmployees(){
-        $employees=User::role('Employee')->get();
-        $deletedEmployees = User::role('Employee')->onlyTrashed()->get();
 
-        return view('admin.users.employee',compact('employees','deletedEmployees'));
+    public function listEmployees()
+    {
+        $employees = User::role('Employee')->get();
+        $deletedEmployees = User::role('Employee')->onlyTrashed()->get();
+        return view('admin.users.employee', compact('employees', 'deletedEmployees'));
     }
+
     public function edit(User $user)
     {
         return view('admin.users.edit', compact('user'));
@@ -68,6 +102,7 @@ class UserManagementController extends Controller
     {
         return view('admin.users.profile', compact('user'));
     }
+
     public function dashboardRedirect(User $user)
     {
         try {
@@ -75,30 +110,24 @@ class UserManagementController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
             if ($user->hasRole('HR')) {
-                return view('hr.dashboard', ['user' => $user , 'announcements' => $announcements]);
+                return view('hr.dashboard', ['user' => $user, 'announcements' => $announcements]);
             } elseif ($user->hasRole('Manager')) {
-                return view('manager.dashboard', ['user' => $user , 'announcements' => $announcements]);
+                return view('manager.dashboard', ['user' => $user, 'announcements' => $announcements]);
             } elseif ($user->hasRole('Employee')) {
-                return view('employee.dashboard', ['user' => $user , 'announcements' => $announcements]);
+                return view('employee.dashboard', ['user' => $user, 'announcements' => $announcements]);
             } else {
                 abort(403, 'User has no valid dashboard.');
             }
         } catch (\Throwable $th) {
-
-            Log::error('Dashboard access failed: ' . $th->getMessage());
+            \Log::error('Dashboard access failed: ' . $th->getMessage());
             abort(500, 'Internal server error.');
         }
     }
 
-
-
-
     public function update(UpdateUserRequest $request, User $user)
     {
         try {
-
             $profileImagePath = $user->profile_image;
-
             if ($request->hasFile('profile_image')) {
                 if ($user->profile_image && Storage::disk('public')->exists($user->profile_image)) {
                     Storage::disk('public')->delete($user->profile_image);
@@ -106,9 +135,41 @@ class UserManagementController extends Controller
                 $profileImagePath = $request->file('profile_image')->store('user_images', 'public');
             }
 
+            // Documents
+            $documentsPath = $user->documents;
+            if ($request->hasFile('documents')) {
+                if ($user->documents && Storage::disk('public')->exists($user->documents)) {
+                    Storage::disk('public')->delete($user->documents);
+                }
+                $documentsPath = $request->file('documents')->store('user_documents', 'public');
+            }
 
-            $userDTO = new UserDTO($request, $profileImagePath);
+            // Resume
+            $resumePath = $user->resume;
+            if ($request->hasFile('resume')) {
+                if ($user->resume && Storage::disk('public')->exists($user->resume)) {
+                    Storage::disk('public')->delete($user->resume);
+                }
+                $resumePath = $request->file('resume')->store('user_resumes', 'public');
+            }
 
+            // Contract
+            $contractPath = $user->contract;
+            if ($request->hasFile('contract')) {
+                if ($user->contract && Storage::disk('public')->exists($user->contract)) {
+                    Storage::disk('public')->delete($user->contract);
+                }
+                $contractPath = $request->file('contract')->store('user_contracts', 'public');
+            }
+
+            $userDTO = new UserDTO(
+                $request,
+                $profileImagePath,
+                $request->skills,
+                $documentsPath,
+                $resumePath,
+                $contractPath
+            );
 
             $this->userservice->updateUser($user, $userDTO);
 
@@ -141,6 +202,4 @@ class UserManagementController extends Controller
         $user->restore();
         return redirect()->back()->with('Success', 'User restored successfully.');
     }
-
-
 }
